@@ -5,13 +5,25 @@ import { useState } from "react";
 import { data } from "react-router-dom";
 const Index = () => {
   const [username, setUserName] = useState("");
+  const [message, setMessage] = useState("");
   const [Data, setData] = useState(null);
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if(!username.trim()){
+      setMessage("Please enter a valid username")
+      return;
+    }
+
     const res = await axios.get(`https://api.github.com/users/${username}`);
     if(res){
       console.log(res.data);
       setData(res.data);
+      setMessage("")
+    }
+    if(res.status === 404){
+      setMessage("User not found")
+      setData(null)
     }
   }
 
@@ -29,9 +41,9 @@ const Index = () => {
         </section>
       </main>
       <hr />
-      
-      {Data ?( <section className="details">
-        
+      { Data ?(
+       <section className="details">
+   
         <div className="img">
           <img src={Data.avatar_url} alt="" />
         </div>
@@ -41,10 +53,14 @@ const Index = () => {
           <p>Repo Count: {Data.public_repos} </p>
           <p>Followers:{Data.followers}</p>
           <p>
-            <a href={Data.html_url}>Repo Link</a>
+            <a href={Data.html_url}>Github Link</a>
           </p>
         </div>
-      </section>): <h1 style={{textAlign:"center"}}>Ooops can't find user</h1>}
+      </section>) :  <p>{Data}</p>
+      }
+      <section className="message">
+        <h1>{message}</h1>
+      </section>  
      
     </>
   );
